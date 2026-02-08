@@ -2,8 +2,8 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -11,7 +11,7 @@ import frc.robot.subsystems.DriveSubsystem;
 public class ArcadeDriveCommand extends Command {
 
     private final DriveSubsystem drive;
-    private final XboxController controller;
+    private final CommandXboxController controller;
 
     private final SlewRateLimiter fwdLimiter =
         new SlewRateLimiter(Constants.DRIVE_FWD_SLEW_RATE);
@@ -19,7 +19,7 @@ public class ArcadeDriveCommand extends Command {
     private final SlewRateLimiter turnLimiter =
         new SlewRateLimiter(Constants.DRIVE_TURN_SLEW_RATE);
 
-    public ArcadeDriveCommand(DriveSubsystem drive, XboxController controller) {
+    public ArcadeDriveCommand(DriveSubsystem drive, CommandXboxController controller) {
         this.drive = drive;
         this.controller = controller;
         addRequirements(drive);
@@ -44,8 +44,8 @@ public class ArcadeDriveCommand extends Command {
             turn = Math.copySign(turn * turn, turn);
         }
 
-        // Optional precision mode (driver RB)
-        if (controller.getRightBumper()) {
+        // Precision mode while holding RB
+        if (controller.rightBumper().getAsBoolean()) {
             forward *= Constants.DRIVE_PRECISION_SCALE;
             turn *= Constants.DRIVE_PRECISION_SCALE;
         }

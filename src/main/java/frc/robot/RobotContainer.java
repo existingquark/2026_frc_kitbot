@@ -1,11 +1,9 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 import frc.robot.commands.ArcadeDriveCommand;
 import frc.robot.commands.HopperHoldCommand;
@@ -22,18 +20,18 @@ import frc.robot.subsystems.LauncherSubsystem;
  * - DRIVER only drives
  * - OPERATOR controls manipulators
  * - Operator mapping matches the agreed control spec (toggles + manual triggers)
- * - Keep behavior stable now so later Spark Flex changes do NOT alter button mapping
+ * - Keep behavior stable so Spark Flex changes do NOT alter button mapping
  */
 public class RobotContainer {
 
     // ============================
     // Controllers
     // ============================
-    private final XboxController driverController =
-        new XboxController(Constants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController driverController =
+        new CommandXboxController(Constants.DRIVER_CONTROLLER_PORT);
 
-    private final XboxController operatorController =
-        new XboxController(Constants.OPERATOR_CONTROLLER_PORT);
+    private final CommandXboxController operatorController =
+        new CommandXboxController(Constants.OPERATOR_CONTROLLER_PORT);
 
     // ============================
     // Subsystems
@@ -51,6 +49,7 @@ public class RobotContainer {
     // Default Commands
     // ============================
     private void configureDefaultCommands() {
+        // ✅ Driver drives (NOT operator)
         driveSubsystem.setDefaultCommand(
             new ArcadeDriveCommand(driveSubsystem, driverController)
         );
@@ -69,16 +68,13 @@ public class RobotContainer {
         // - RT hold:   manual proportional intake + shoot from ground
         // - LB toggle: automatic outtake + shoot from holding
         // - LT hold:   manual proportional outtake + shoot from holding
-        // - X: intake/transfer to holding
-        // - A: spins holding in (hold/retain)
+        // - X: transfer to holding
+        // - A: spins holding in (retain)
         // - Y: spit out (eject)
         // - B: intentionally left open for now
 
-        // ----------------------------
-        // RB (toggle): Auto ground intake + shoot
-        // Runs BOTH: launcher motor + hopper feed
-        // ----------------------------
-        new JoystickButton(operatorController, XboxController.Button.kRightBumper.value)
+        // RB (toggle): Auto ground intake + shoot (launcher + hopper forward)
+        operatorController.rightBumper()
             .toggleOnTrue(
                 new ParallelCommandGroup(
                     new LauncherIntakeHoldCommand(
@@ -92,14 +88,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
         // RT (hold/axis): Manual proportional ground intake + shoot
-        // Proportional scaling: trigger * maxPower
-        // ----------------------------
-        new Trigger(() -> MathUtil.applyDeadband(
-            operatorController.getRightTriggerAxis(),
-            Constants.TRIGGER_DEADBAND
-        ) > 0.0)
+        operatorController.rightTrigger(Constants.TRIGGER_DEADBAND)
             .whileTrue(
                 new ParallelCommandGroup(
                     new LauncherIntakeHoldCommand(
@@ -119,11 +109,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
-        // LB (toggle): Auto holding outtake + shoot
-        // Runs BOTH: launcher motor + hopper reverse
-        // ----------------------------
-        new JoystickButton(operatorController, XboxController.Button.kLeftBumper.value)
+        // LB (toggle): Auto holding outtake + shoot (launcher + hopper reverse)
+        operatorController.leftBumper()
             .toggleOnTrue(
                 new ParallelCommandGroup(
                     new LauncherIntakeHoldCommand(
@@ -137,14 +124,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
         // LT (hold/axis): Manual proportional holding outtake + shoot
-        // Proportional scaling: trigger * maxPower (negative direction handled by constants)
-        // ----------------------------
-        new Trigger(() -> MathUtil.applyDeadband(
-            operatorController.getLeftTriggerAxis(),
-            Constants.TRIGGER_DEADBAND
-        ) > 0.0)
+        operatorController.leftTrigger(Constants.TRIGGER_DEADBAND)
             .whileTrue(
                 new ParallelCommandGroup(
                     new LauncherIntakeHoldCommand(
@@ -164,11 +145,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
-        // X (hold): Transfer / intake to holding
-        // (Simple + reliable: run hopper forward)
-        // ----------------------------
-        new JoystickButton(operatorController, XboxController.Button.kX.value)
+        // X (hold): Transfer/intake to holding (hopper forward)
+        operatorController.x()
             .whileTrue(
                 new HopperHoldCommand(
                     hopperSubsystem,
@@ -176,11 +154,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
-        // A (hold): "Spins holding in" (retain/hold piece)
-        // (Simple: run launcher at a low hold power)
-        // ----------------------------
-        new JoystickButton(operatorController, XboxController.Button.kA.value)
+        // A (hold): "spins holding in" / retain (launcher low power)
+        operatorController.a()
             .whileTrue(
                 new LauncherIntakeHoldCommand(
                     launcherSubsystem,
@@ -188,11 +163,8 @@ public class RobotContainer {
                 )
             );
 
-        // ----------------------------
-        // Y (hold): Spit out / eject
-        // (Run both launcher + hopper reverse)
-        // ----------------------------
-        new JoystickButton(operatorController, XboxController.Button.kY.value)
+        // Y (hold): spit out / eject (launcher + hopper reverse)
+        operatorController.y()
             .whileTrue(
                 new ParallelCommandGroup(
                     new LauncherIntakeHoldCommand(
@@ -206,12 +178,8 @@ public class RobotContainer {
                 )
             );
 
-        // B is intentionally unbound for now.
-
-        // ====================================================
-        // DRIVER CONTROLS (Controller 0)
-        // ====================================================
-        // Driver only drives. (Optional future: add a kill switch here.)
+        // B intentionally unbound
+        // operatorController.b() ...
     }
 
     public Command getAutonomousCommand() {

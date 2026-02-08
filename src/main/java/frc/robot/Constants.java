@@ -96,10 +96,12 @@ public final class Constants {
 	public static final double EJECT_LAUNCHER_POWER = -0.50;
 	public static final double EJECT_HOPPER_POWER = -0.75;
 
-	// Spark Flex (NEO Vortex) launcher
-	public static final int LAUNCHER_SPARKFLEX_CAN = 30; // set to your actual Spark Flex CAN ID
-	public static final boolean LAUNCHER_INVERTED = false;
-
+	// ============================
+	// Launcher (Spark Flex / NEO Vortex)
+	// ============================
+	public static final int LAUNCHER_SPARKFLEX_CAN = 30;
+	public static final boolean LAUNCHER_INVERTED = false; // flip if spins wrong
+	public static final int LAUNCHER_CURRENT_LIMIT_AMPS = 60;
 
 	// Drive configuration
 	// Invert the right side group so positive forward values drive forwards

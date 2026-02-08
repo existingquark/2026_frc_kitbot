@@ -1,8 +1,12 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkBase.IdleMode;
-import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
+
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -10,29 +14,30 @@ import frc.robot.Constants;
 /**
  * LauncherSubsystem
  *
- * Spark Flex (NEO Vortex) implementation.
- * Provides simple percent-output control for commands.
+ * Spark Flex (NEO Vortex) implementation using REVLib 2025+ API.
+ * Keeps a stable "percent output" interface for commands.
  */
 public class LauncherSubsystem extends SubsystemBase {
 
-    private final CANSparkFlex launcherMotor =
-        new CANSparkFlex(Constants.LAUNCHER_SPARKFLEX_CAN, MotorType.kBrushless);
+    private final SparkFlex launcherMotor =
+        new SparkFlex(Constants.LAUNCHER_SPARKFLEX_CAN, MotorType.kBrushless);
 
     private double lastPercent = 0.0;
 
     public LauncherSubsystem() {
-        launcherMotor.restoreFactoryDefaults();
+        // REVLib 2025+ uses config objects + configure()
+        SparkFlexConfig config = new SparkFlexConfig();
 
-        launcherMotor.setInverted(Constants.LAUNCHER_INVERTED);
-        launcherMotor.setIdleMode(IdleMode.kBrake);
+        config
+            .inverted(Constants.LAUNCHER_INVERTED)
+            .idleMode(IdleMode.kBrake)
+            .smartCurrentLimit(Constants.LAUNCHER_CURRENT_LIMIT_AMPS);
 
-        // Optional: keep CAN usage reasonable
-        launcherMotor.setSmartCurrentLimit(60);
-
-        launcherMotor.burnFlash();
+        // Safe default: reset safe parameters, and persist to flash
+        launcherMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    /** Percent output [-1..1]. */
+    /** Percent output [-1.0, 1.0]. */
     public void setPercentOutput(double percent) {
         lastPercent = percent;
         launcherMotor.set(percent);
