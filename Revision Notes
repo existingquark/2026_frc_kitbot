@@ -1,0 +1,30 @@
+This revision incorporates driver and operator controls, move turning input from sticks to bumpers, 
+and other improvements as the code develops towards autos and QuestNav incorporation. Full drive 
+testing will be done (02.07.2026). Still need operator feedback on controls. Codebase should be ready 
+for autos and questnav after that
+
+Quick summary of current state for A.2
+
+Operator bindings added and driver/driver-operator roles updated in RobotContainer.java.
+Manual proportional operator triggers implemented (right = intake, left = outtake).
+Operator RB repurposed to toggle launcher intake.
+Hopper A/B bindings moved to operator per your request.
+Renamed command classes (Mode → shorter names) and updated references:
+Added: LauncherHoldCommand, LauncherIntakeHoldCommand, HopperHoldCommand
+Updated: RobotContainer.java, Autos.java, and other references
+Suppressed the enum-switch warning in IntakeHopperSubsystem.periodic() with @SuppressWarnings("incomplete-switch").
+Centralized deadband: ArcadeDriveCommand now uses Constants.TRIGGER_DEADBAND.
+Build compiled successfully after all edits.
+Delete and mode referencing code:
+
+LauncherModeHoldCommand.java
+LauncherIntakeModeHoldCommand.java
+HopperModeHoldCommand.java
+Next steps when you’re ready
+
+Saved this workspace as rev A.3,
+
+-------------------------------------------------------------------------------
+first compile and iteration of FRC 2026 kitbot code for Lufkin PantherBots. 
+It sets the controls in a command based architecture for modularity and input isolation.
+The project incorporates AI for development and crafting comment structure for clarity and instruction. 

@@ -1,0 +1,52 @@
+package frc.robot.commands;
+
+import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.IntakeHopperSubsystem;
+import frc.robot.subsystems.IntakeHopperSubsystem.Mode;
+
+/**
+ * HopperManualCommand
+ *
+ * While scheduled:
+ * - Requests HOPPER_MANUAL mode
+ * - Sets a fixed hopper power (positive forward, negative reverse)
+ */
+public class HopperManualCommand extends Command {
+
+    private final IntakeHopperSubsystem intake;
+    private final double hopperPower;
+
+    /**
+     * Constructs a HopperManualCommand.
+     *
+     * @param intake       intake/hopper subsystem
+     * @param hopperPower  fixed hopper output (negative reverses)
+     */
+    public HopperManualCommand(IntakeHopperSubsystem intake, double hopperPower) {
+        this.intake = intake;
+        this.hopperPower = hopperPower;
+        addRequirements(intake);
+    }
+
+    /**
+     * Selects manual hopper mode and applies fixed power.
+     */
+    @Override
+    public void initialize() {
+        intake.requestMode(Mode.HOPPER_MANUAL);
+        intake.setHopperManualPower(hopperPower);
+    }
+
+    /**
+     * Stops motors when command ends.
+     */
+    @Override
+    public void end(boolean interrupted) {
+        intake.stop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
+}
