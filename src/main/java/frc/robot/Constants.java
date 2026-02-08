@@ -65,6 +65,42 @@ public final class Constants {
 	public static final double PRESET_OUTTAKE_HOPPER_POWER = -0.70;
 	//public static final double LAUNCHER_HOLD_INTAKE_POWER = 0.80; do i need this still???
 
+	// ============================
+	// Drive tuning (demo-stable)
+	// ============================
+	public static final double DRIVE_STICK_DEADBAND = 0.08;
+	public static final double DRIVE_TRIGGER_DEADBAND = 0.05; // can reuse TRIGGER_DEADBAND if you prefer
+	public static final double DRIVE_FWD_SLEW_RATE = 2.5;      // units per second
+	public static final double DRIVE_TURN_SLEW_RATE = 3.5;     // units per second
+	public static final double DRIVE_PRECISION_SCALE = 0.45;
+	public static final boolean DRIVE_SQUARE_INPUTS = true;
+
+	// ============================
+	// Operator manual scaling (proportional triggers)
+	// ============================
+	// Ground path (RT): intake + shoot
+	public static final double MANUAL_GROUND_MAX_LAUNCHER_POWER = 0.80;
+	public static final double MANUAL_GROUND_MAX_HOPPER_POWER = 0.90;
+
+	// Holding path (LT): outtake + shoot
+	// NOTE: these should be negative if "outtake" is negative direction.
+	public static final double MANUAL_HOLDING_MAX_LAUNCHER_POWER = -0.60;
+	public static final double MANUAL_HOLDING_MAX_HOPPER_POWER = -0.70;
+
+	// ============================
+	// Operator buttons
+	// ============================
+	public static final double TRANSFER_TO_HOLDING_HOPPER_POWER = 0.75;
+	public static final double HOLDING_RETAIN_LAUNCHER_POWER = 0.25;
+
+	public static final double EJECT_LAUNCHER_POWER = -0.50;
+	public static final double EJECT_HOPPER_POWER = -0.75;
+
+	// Spark Flex (NEO Vortex) launcher
+	public static final int LAUNCHER_SPARKFLEX_CAN = 30; // set to your actual Spark Flex CAN ID
+	public static final boolean LAUNCHER_INVERTED = false;
+
+
 	// Drive configuration
 	// Invert the right side group so positive forward values drive forwards
 	public static final boolean RIGHT_SIDE_INVERTED = true;

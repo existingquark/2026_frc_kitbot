@@ -97,6 +97,10 @@ public class DriveSubsystem extends SubsystemBase {
         drive.arcadeDrive(forward, turn);
     }
 
+    /** Stops the drivetrain immediately. */
+    public void stop() {
+        drive.arcadeDrive(0.0, 0.0);
+    }
     // /**
     //  * getPose
     //  *

@@ -1,90 +1,69 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
-import frc.robot.Constants;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
+
+import frc.robot.Constants;
 import frc.robot.subsystems.DriveSubsystem;
 
-/**
- * ArcadeDriveCommand
- *
- * Driver control command for the KITBOT.
- *
- * Control layout (intentional and future-proof):
- * - Left stick Y  : forward / backward
- * - Left stick X  : strafe (RESERVED for future swerve drivetrain)
- * - Right trigger : rotate right (proportional)
- * - Left trigger  : rotate left  (proportional)
- *
- * Mentor notes:
- * - The kitbot cannot strafe, so left stick X is intentionally ignored.
- * - This layout exactly matches our planned competition swerve controls.
- * - Teaching drivers this now avoids retraining later.
- */
 public class ArcadeDriveCommand extends Command {
 
     private final DriveSubsystem drive;
     private final XboxController controller;
 
-    // ============================
-    // Tuning constants (demo-safe)
-    // ============================
-    // Use centralized constant for trigger/stick deadband so tuning is in one place.
+    private final SlewRateLimiter fwdLimiter =
+        new SlewRateLimiter(Constants.DRIVE_FWD_SLEW_RATE);
 
-    public ArcadeDriveCommand(
-        DriveSubsystem drive,
-        XboxController controller
-    ) {
+    private final SlewRateLimiter turnLimiter =
+        new SlewRateLimiter(Constants.DRIVE_TURN_SLEW_RATE);
+
+    public ArcadeDriveCommand(DriveSubsystem drive, XboxController controller) {
         this.drive = drive;
         this.controller = controller;
-
         addRequirements(drive);
     }
 
     @Override
     public void execute() {
-        // ============================
-        // Forward / backward
-        // ============================
-        // Xbox Y axis is inverted: pushing forward returns negative
+        // Forward/back (stick Y inverted)
         double forward = -MathUtil.applyDeadband(
             controller.getLeftY(),
-            Constants.TRIGGER_DEADBAND
+            Constants.DRIVE_STICK_DEADBAND
         );
 
-        // ============================
-        // Strafe (reserved for swerve)
-        // ============================
-        // Kitbot cannot strafe.
-        // We read and deadband this axis intentionally to document future use.
-       // double strafe = MathUtil.applyDeadband(
-       //     controller.getLeftX(),
-       //     DEADBAND
-        //);
-        // NOTE: 'strafe' is not used on the kitbot.
-
-        // ============================
-        // Rotation (trigger-based)
-        // ============================
-        // Right trigger = turn right
-        // Left trigger  = turn left
-        // Proportional control based on trigger press amount
+        // Turn (trigger difference)
         double turn = MathUtil.applyDeadband(
-            controller.getRightTriggerAxis()
-                - controller.getLeftTriggerAxis(),
-            Constants.TRIGGER_DEADBAND
+            controller.getRightTriggerAxis() - controller.getLeftTriggerAxis(),
+            Constants.DRIVE_TRIGGER_DEADBAND
         );
 
-        // ============================
-        // Drive the robot
-        // ============================
+        if (Constants.DRIVE_SQUARE_INPUTS) {
+            forward = Math.copySign(forward * forward, forward);
+            turn = Math.copySign(turn * turn, turn);
+        }
+
+        // Optional precision mode (driver RB)
+        if (controller.getRightBumper()) {
+            forward *= Constants.DRIVE_PRECISION_SCALE;
+            turn *= Constants.DRIVE_PRECISION_SCALE;
+        }
+
+        // Smooth the outputs
+        forward = fwdLimiter.calculate(forward);
+        turn = turnLimiter.calculate(turn);
+
         drive.arcadeDrive(forward, turn);
     }
 
     @Override
     public void end(boolean interrupted) {
-        // Always stop the drivetrain when the command ends
-        drive.arcadeDrive(0.0, 0.0);
+        drive.stop();
+    }
+
+    @Override
+    public boolean isFinished() {
+        return false;
     }
 }
