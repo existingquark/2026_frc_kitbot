@@ -13,6 +13,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotInit() {
+        System.out.println("=== CONTROLS BUILD: SparkFlex CAN30 + SmokeTest B ===");        
         robotContainer = new RobotContainer();
     }
 
@@ -42,4 +43,5 @@ public class Robot extends TimedRobot {
             CommandScheduler.getInstance().cancel(autonomousCommand);
         }
     }
+    
 }

@@ -1,6 +1,5 @@
 package frc.robot;
 
-//import com.ctre.phoenix6.signals.StaticFeedforwardSignValue;
 
 /**
  * Robot-wide numerical or boolean constants.
@@ -28,8 +27,14 @@ public final class Constants {
 	// on CAN ID 5. When a dedicated launcher motor is installed, update
 	// `LAUNCHER_CAN` to that device's ID and `INTAKE_CAN` to the intake's ID.
 	// For now both are set to the existing ID to preserve behavior.
-	public static final int LAUNCHER_CAN = 5;
+	//public static final int LAUNCHER_CAN = 5;
 	public static final int INTAKE_CAN = 5; // change when separate intake motor is wired
+	// ============================
+	// Launcher (Spark Flex / NEO Vortex)
+	// ============================
+	public static final int LAUNCHER_SPARKFLEX_CAN = 30;
+	public static final boolean LAUNCHER_INVERTED = false; // flip if spins wrong
+	public static final int LAUNCHER_CURRENT_LIMIT_AMPS = 60;
 
 	// CAN ID for the hopper motor controller
 	public static final int HOPPER_CAN = 1;
@@ -97,11 +102,16 @@ public final class Constants {
 	public static final double EJECT_HOPPER_POWER = -0.75;
 
 	// ============================
-	// Launcher (Spark Flex / NEO Vortex)
+	// Launcher feed coupling (power-based)
 	// ============================
-	public static final int LAUNCHER_SPARKFLEX_CAN = 30;
-	public static final boolean LAUNCHER_INVERTED = false; // flip if spins wrong
-	public static final int LAUNCHER_CURRENT_LIMIT_AMPS = 60;
+	// Consider these "demo-safe defaults"; tune on carpet.
+	public static final double LAUNCHER_COUPLE_BIAS = 0.10;        // baseline when feeding
+	public static final double LAUNCHER_COUPLE_K_INTAKE = 0.70;    // how much intake contributes
+	public static final double LAUNCHER_COUPLE_K_HOPPER = 0.90;    // how much hopper contributes
+	public static final double LAUNCHER_COUPLE_MIN_ACTIVE = 0.18;  // minimum launcher when feed is active
+	public static final double LAUNCHER_COUPLE_ACTIVE_EPS = 0.05;  // threshold to consider feed "active"
+	public static final double LAUNCHER_COUPLE_SLEW_RATE = 3.0;    // launcher ramp rate
+
 
 	// Drive configuration
 	// Invert the right side group so positive forward values drive forwards

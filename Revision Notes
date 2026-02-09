@@ -1,3 +1,11 @@
+docs: note CAN bring-up status + missing Talon(s) not visible in Phoenix Tuner
+
+- Phoenix Tuner shows Talon IDs 1,2,3,5,6 on RIO CAN (firmware/app running)
+- At least one controller still missing (ID gap at 4); two Talons observed flashing red
+- PDH termination switch currently ON; next step is to verify ~60Ω across CAN H/L with power off
+- Plan: isolate by moving missing Talon(s) to PDH CAN terminals, then inspect segment for H/L swap, open, or bad connector/crimp
+
+
 This revision incorporates driver and operator controls, move turning input from sticks to bumpers, 
 and other improvements as the code develops towards autos and QuestNav incorporation. Full drive 
 testing will be done (02.07.2026). Still need operator feedback on controls. Codebase should be ready 
