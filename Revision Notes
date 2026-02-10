@@ -1,3 +1,12 @@
+02.09.2026
+
+ALL KITBOT MOTORS LIVE. This .Controls version is the PantherBots 2026 Kitbot working code for demoing and drive team (driver/operator) fine tuning. Next revision will incorporate the headsets and autos.
+
+NOTE: May need to review and clean up (archive) legacy files from intake/launcher coupling.
+
+---------------------------------------------------------------------------------
+02.08.2026
+
 docs: note CAN bring-up status + missing Talon(s) not visible in Phoenix Tuner
 
 - Phoenix Tuner shows Talon IDs 1,2,3,5,6 on RIO CAN (firmware/app running)
@@ -28,9 +37,8 @@ Delete and mode referencing code:
 LauncherModeHoldCommand.java
 LauncherIntakeModeHoldCommand.java
 HopperModeHoldCommand.java
-Next steps when you’re ready
 
-Saved this workspace as rev A.3,
+
 
 -------------------------------------------------------------------------------
 first compile and iteration of FRC 2026 kitbot code for Lufkin PantherBots. 
