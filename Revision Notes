@@ -1,3 +1,23 @@
+(02.21.2026)
+Operator Controls modification after drive team testing, quest and nano testing on hold for now
+
+Operator:
+- RT/LT -> manual intake/outtake
+- RB/LB -> toggle preset intake/outtake
+- X -> prime (preset intake)
+- Y -> eject (trigger outtake @ 0.75)
+- A -> retain (launcher hold)
+
+Fixes:
+- TRIGGER_OUTTAKE reverses intake + hopper
+- HOPPER_MANUAL runs hopper only
+- Launcher coupling only active in TRIGGER_LAUNCHERFEED
+
+Telemetry:
+- SmartDashboard keys for intake/hopper mode & outputs + launcher coupling state
+
+
+-------------------------------------------------------------------------------------------------
 (02.14.2026) 
 QuestNav (Quest 3S) → Jetson Nano → NT4 → roboRIO (Team 2582, Differential Drive)
 
