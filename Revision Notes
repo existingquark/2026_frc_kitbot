@@ -1,0 +1,139 @@
+(02.14.2026) 
+QuestNav (Quest 3S) → Jetson Nano → NT4 → roboRIO (Team 2582, Differential Drive)
+
+What was accomplished
+--------------------
+1) Standardized a NetworkTables (NT4) “pose stream” contract so the Jetson and roboRIO speak the same language.
+2) Implemented robot-side NT4 ingestion (QuestNavIONT4) with health reporting + timestamp conversion.
+3) Upgraded QuestNavSubsystem into a real data source (NT4-backed) while keeping its command-friendly API.
+4) Infused DriveSubsystem with a DifferentialDrivePoseEstimator scaffold that can fuse Quest pose as a
+   “vision-like” measurement (addVisionMeasurement) with safety gates (stale/quality/jump rejection).
+5) Verified all method names and key strings match across files, and the project builds successfully.
+
+NT4 Table + Keys (the contract)
+------------------------------
+All QuestNav pose data is published under this NetworkTables path:
+
+  Table: /questnav
+
+Each key below is a field inside that table.
+
+KEY: x_m
+  Type: double
+  Units: meters
+  Meaning: Field/odometry X position of the robot.
+  Notes: In WPILib, X/Y are in meters. X is typically along the field length axis (convention depends on your origin).
+
+KEY: y_m
+  Type: double
+  Units: meters
+  Meaning: Field/odometry Y position of the robot.
+
+KEY: yaw_rad
+  Type: double
+  Units: radians
+  Meaning: Robot heading (Rotation2d) in radians.
+  Convention: CCW-positive (WPILib standard).
+
+KEY: ts_s
+  Type: double
+  Units: seconds (monotonic time on the Jetson)
+  Meaning: The timestamp of the pose sample in the Jetson’s own monotonic clock.
+  Why it matters: WPILib needs timestamps in the roboRIO timebase for addVisionMeasurement, so
+  QuestNavIONT4 estimates an offset:
+      rio_time ≈ jetson_time + offset
+  and exposes a converted timestamp for the estimator.
+
+KEY: quality
+  Type: double
+  Range: 0.0 to 1.0 (recommended)
+  Meaning: Confidence/quality score for the pose sample.
+  Usage: DriveSubsystem rejects pose updates below MIN_QUALITY.
+
+KEY: connected
+  Type: boolean
+  Meaning: Publisher “alive” flag.
+  Usage: If false, robot will not fuse pose samples.
+
+KEY: frame
+  Type: string
+  Examples: "field", "odom"
+  Meaning: Which coordinate frame the pose is expressed in.
+  Notes: For FRC pose estimation, field-relative is typically preferred once aligned/reset.
+
+Robot-side behavior (high level)
+--------------------------------
+- QuestNavIONT4 subscribes to the /questnav keys and keeps the latest sample cached.
+- It computes a Jetson→roboRIO time offset so the estimator can use correct timestamps.
+- QuestNavSubsystem publishes pose + health to dashboards/Field2d for visualization.
+- DriveSubsystem updates its pose estimator each loop and fuses Quest pose when valid:
+    - connected must be true
+    - sample must not be stale (age <= STALE_TIMEOUT_S)
+    - quality must be >= MIN_QUALITY
+    - reject teleports (large position jump) and large yaw spikes between samples
+
+Current limitations / next steps (hardware)
+-------------------------------------------
+- DriveSubsystem currently has stub methods for:
+    getHeading()
+    getLeftDistanceMeters()
+    getRightDistanceMeters()
+  Real encoders + gyro are required for true dead-reckoning odometry.
+- TRACK_WIDTH_M should be measured/set to match the actual kitbot build.
+
+Status
+------
+✅ Builds successfully
+✅ NT4 schema matches across constants + subscriber + subsystem + drive fusion
+✅ Fusion-ready estimator scaffold in DriveSubsystem
+🔧 Next: wire gyro/encoders and tune thresholds/noise once on the robot
+----------------------------------------------------------------------------------------
+02.09.2026
+
+ALL KITBOT MOTORS LIVE. This .Controls version is the PantherBots 2026 Kitbot working code for demoing and drive team (driver/operator) fine tuning. Next revision will incorporate the headsets and autos.
+
+NOTE: May need to review and clean up (archive) legacy files from intake/launcher coupling.
+
+
+
+
+---------------------------------------------------------------------------------
+02.08.2026
+
+docs: note CAN bring-up status + missing Talon(s) not visible in Phoenix Tuner
+
+- Phoenix Tuner shows Talon IDs 1,2,3,5,6 on RIO CAN (firmware/app running)
+- At least one controller still missing (ID gap at 4); two Talons observed flashing red
+- PDH termination switch currently ON; next step is to verify ~60Ω across CAN H/L with power off
+- Plan: isolate by moving missing Talon(s) to PDH CAN terminals, then inspect segment for H/L swap, open, or bad connector/crimp
+
+
+This revision incorporates driver and operator controls, move turning input from sticks to bumpers, 
+and other improvements as the code develops towards autos and QuestNav incorporation. Full drive 
+testing will be done (02.07.2026). Still need operator feedback on controls. Codebase should be ready 
+for autos and questnav after that
+
+Quick summary of current state for A.2
+
+Operator bindings added and driver/driver-operator roles updated in RobotContainer.java.
+Manual proportional operator triggers implemented (right = intake, left = outtake).
+Operator RB repurposed to toggle launcher intake.
+Hopper A/B bindings moved to operator per your request.
+Renamed command classes (Mode → shorter names) and updated references:
+Added: LauncherHoldCommand, LauncherIntakeHoldCommand, HopperHoldCommand
+Updated: RobotContainer.java, Autos.java, and other references
+Suppressed the enum-switch warning in IntakeHopperSubsystem.periodic() with @SuppressWarnings("incomplete-switch").
+Centralized deadband: ArcadeDriveCommand now uses Constants.TRIGGER_DEADBAND.
+Build compiled successfully after all edits.
+Delete and mode referencing code:
+
+LauncherModeHoldCommand.java
+LauncherIntakeModeHoldCommand.java
+HopperModeHoldCommand.java
+
+
+
+-------------------------------------------------------------------------------
+first compile and iteration of FRC 2026 kitbot code for Lufkin PantherBots. 
+It sets the controls in a command based architecture for modularity and input isolation.
+The project incorporates AI for development and crafting comment structure for clarity and instruction. 
